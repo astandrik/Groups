@@ -58,6 +58,13 @@ struct wise_vector {
     }
 
 
+    void fill_default(int size = 1) {
+        inner_vector.clear();
+        for (int i = 0; i < size; ++i) {
+            inner_vector.push_back(i);
+        }
+    }
+
     wise_vector(){}
     wise_vector(const vector<T>& v) {
         inner_vector = v;
@@ -128,3 +135,4 @@ struct wise_vector {
         return false;
     };
 };
+

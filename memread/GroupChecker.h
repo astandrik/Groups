@@ -16,16 +16,15 @@ class Matrix {
     int size;
 public:
     Matrix(unsigned short* elem, int size): elements(elem), size(size) {}
-    unsigned short Get(int i, int j) {
+    inline unsigned short Get(int i, int j) {
         return elements[i * size + j];
     }
 };
 
 struct GroupChecker {
     static vector<unsigned short> inverse_elements;
-    GroupChecker() {
-        FILE * finverse = fopen ("/home/anton/workspace/INVERSE", "rb");
-
+    static void Init(string filename) {
+        FILE * finverse = fopen (filename.c_str(), "rb");
         unsigned short inverse;
         while(fread(&inverse, sizeof(unsigned short), 1, finverse)) {
             inverse_elements.push_back(inverse);
@@ -73,3 +72,4 @@ bool GroupChecker::HasInverse(vector<unsigned short>& elements, int size, Matrix
 }
 
 vector<unsigned short> GroupChecker::inverse_elements = vector<unsigned short>();
+
