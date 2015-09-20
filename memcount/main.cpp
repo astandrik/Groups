@@ -6,8 +6,11 @@
 #include <algorithm>
 #include <map>
 #include <complex.h>
+#include <fstream>
 #include "wise_vector.h"
 using namespace std;
+
+ ofstream fiterpretations("/home/nastia/workspace/inerpretationd_SIGHT");
 
 const int elements_number = 6;
 
@@ -72,10 +75,16 @@ struct Element {
         for (int i = 0; i < elements_number; ++i) {
             elements[i] = element[i];
         }
-        number = counter++;
+        number = counter--;
         global_indexer.insert(pair<int, unsigned short>(array_to_int(elements), number));
     }
     static unsigned short counter;
+    void print() {
+        for(int i = 0; i < elements_number; i++) {
+            fiterpretations << *(elements + i) << " ";
+        }
+        fiterpretations << endl;
+    }
 
 };
 
@@ -158,18 +167,26 @@ unsigned short* vector_to_array(vector<unsigned short> v,int size) {
     return  buffer;
 }
 
+int factorial(int n) {
+    return n > 1 ? n * factorial(n-1): 1;
+}
+
 int main()
 {
     int* a = new int[elements_number];
+    int* tmp = new int[elements_number];
     for (int i = 1; i <= elements_number ; ++i) {
         a[i-1] = i;
     }
     list<Element> permutationElements;
     int size = elements_number;
+    Element::counter = factorial(elements_number) - 1;
     do
     {
-        permutationElements.push_back(Element(a));
-        cout << endl;
+	for(int k = 0; k < elements_number; k++) {
+		tmp[elements_number - 1 - k] = a[k];	
+	}
+        permutationElements.push_front(Element(tmp));
     } while(std::next_permutation(&a[0], &a[elements_number]));
     list<Element>::iterator p;
     list<Element>::iterator q;
@@ -177,14 +194,17 @@ int main()
     FILE *f;
     FILE *fcomplex_create;
     FILE *finverse;
-    f = fopen("/home/anton/workspace/MATRIX_RESULT_SIX", "wb");
-    fcomplex_create = fopen ("/home/anton/workspace/COMPLEXITIES", "wb");
-    finverse = fopen ("/home/anton/workspace/INVERSE", "wb");
+    f = fopen("/home/nastia/workspace/MATRIX_RESUL_SIGHT", "wb");
+    fcomplex_create = fopen ("/home/nastia/workspace/COMXITIES_SIGHT", "wb");
+    finverse = fopen ("/home/nastia/workspace/INVERSE_SIGHT", "wb");
     vector<unsigned short> nums;
     int k = permutationElements.size();
 
     double complex;
+    int nn = 0;
     for (p = permutationElements.begin(); p != permutationElements.end(); ++p) {
+        fiterpretations << nn++ << " ";
+        p->print();
         complex = calculate_complexity(p->elements);
         fwrite(&complex, sizeof(double), 1, fcomplex_create);
     }
@@ -196,7 +216,6 @@ int main()
         bool has_inv = false;
         for (q = permutationElements.begin(); q != permutationElements.end(); ++q) {
             int* mresult = multiplication_result(p->elements, q->elements, size);
-
             unsigned short permNumber = get_permutation_number(mresult);
             if(!has_inv && permNumber == 0) {
                 unsigned short inverse = get_permutation_number(q->elements);
